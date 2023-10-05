@@ -1,5 +1,6 @@
 defmodule StockpricesChatWeb.ChatLive do
   use StockpricesChatWeb, :live_view
+  alias StockpricesChat.Services.UtilsService
   require Logger
 
   def mount(_params, _session, socket) do
@@ -35,7 +36,7 @@ defmodule StockpricesChatWeb.ChatLive do
         </ol>
       </div>
 
-      <div class="w-full rounded-lg p-2 border-2 border-blue-400 overflow-y-auto max-h-96">
+      <div class="w-full rounded-lg p-2 border-2 border-blue-200 overflow-y-auto max-h-96">
         <%= for h <- @history do %>
           <p><%= h %></p>
 
@@ -45,8 +46,8 @@ defmodule StockpricesChatWeb.ChatLive do
 
       <div class="mt-2 flex rounded-md shadow-sm">
           <form phx-submit="handle_submit" class="relative flex flex-grow items-stretch focus-within:z-10">
-            <input type="text" name="my_input" value={@message} class="block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Type your request here">
-            <button type="submit" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <input type="text" name="my_input" value={@message} class="block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-200 sm:text-sm sm:leading-6" placeholder="Type your request here">
+            <button type="submit" class="relative ml-2 inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-blue-200">
               Send
             </button>
           </form>
@@ -57,7 +58,14 @@ defmodule StockpricesChatWeb.ChatLive do
 
   def handle_event("handle_submit", %{"my_input" => new_message}, socket) do
     Logger.info("New input is: #{new_message}")
-    updated_history = socket.assigns.history ++ [new_message]
-    {:noreply, assign(socket, my_message: "", history: updated_history)}
+    with {:ok, request} <- UtilsService.get_parsed(new_message) do
+      IO.inspect(request)
+      updated_history = socket.assigns.history ++ [new_message]
+      {:noreply, assign(socket, my_message: "", history: updated_history)}
+    else
+      {:error, reason} ->
+        updated_history = socket.assigns.history ++ [reason]
+        {:noreply, assign(socket, my_message: "", history: updated_history)}
+    end
   end
 end
