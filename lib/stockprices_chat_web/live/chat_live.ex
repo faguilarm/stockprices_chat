@@ -1,6 +1,7 @@
 defmodule StockpricesChatWeb.ChatLive do
   use StockpricesChatWeb, :live_view
   alias StockpricesChat.Services.UtilsService
+  alias StockpricesChat.Services.StockpriceService
   require Logger
 
   def mount(_params, _session, socket) do
@@ -10,10 +11,10 @@ defmodule StockpricesChatWeb.ChatLive do
   @spec render(any) :: Phoenix.LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <h1 class="mb-2 text-4xl font-extrabold">Welcome to the StockPrices Chat!</h1>
+    <h1 class="mb-2 text-2xl lg:text-4xl font-extrabold text-center">Welcome to the StockPrices Chat!</h1>
     <div class="flex flex-col space-y-4">
       <div>
-        <h2 class="font-bold text-b">
+        <h2 class="font-bold text-center">
           Please ask the information you need by following the next format:
         </h2>
 
@@ -27,16 +28,18 @@ defmodule StockpricesChatWeb.ChatLive do
             </ul>
           </li>
           <li>Examples:
-            <pre class="font-mono ml-4 p-2 py-4 bg-gray-900 text-green-500 rounded-lg">
+            <div class="font-mono ml-4 p-4 bg-gray-900 text-green-500 rounded-lg">
               AAPL
+              <br>
               AAPL 2023-09-30
+              <br>
               AAPL 2023-09-30 2023-10-02
-            </pre>
+            </div>
           </li>
         </ol>
       </div>
 
-      <div class="w-full rounded-lg p-2 border-2 border-blue-200 overflow-y-auto max-h-96">
+      <div class="w-full rounded-lg p-2 border-2 border-blue-200 overflow-y-auto max-h-96 font-mono">
         <%= for h <- @history do %>
           <p><%= h %></p>
 
@@ -59,13 +62,18 @@ defmodule StockpricesChatWeb.ChatLive do
   def handle_event("handle_submit", %{"my_input" => new_message}, socket) do
     Logger.info("New input is: #{new_message}")
     with {:ok, request} <- UtilsService.get_parsed(new_message) do
-      IO.inspect(request)
-      updated_history = socket.assigns.history ++ [new_message]
-      {:noreply, assign(socket, my_message: "", history: updated_history)}
+      {:ok, response} = StockpriceService.get_stockprice(request)
+      list_str = Enum.map(response, fn row -> "#{row.ticker} #{row.date} #{row.price}" end)
+      updated_history = create_updated_history(socket.assigns.history, list_str)
+      {:noreply, assign(socket, message: "", history: updated_history)}
     else
       {:error, reason} ->
-        updated_history = socket.assigns.history ++ [reason]
-        {:noreply, assign(socket, my_message: "", history: updated_history)}
+        updated_history = create_updated_history(socket.assigns.history, [reason])
+        {:noreply, assign(socket, message: "", history: updated_history)}
     end
+  end
+
+  def create_updated_history(history, new_lines) do
+    history ++ new_lines ++ ["======================="]
   end
 end
