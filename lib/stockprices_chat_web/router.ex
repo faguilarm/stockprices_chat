@@ -17,7 +17,8 @@ defmodule StockpricesChatWeb.Router do
   scope "/", StockpricesChatWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    #get "/", PageController, :home
+    live "/", ChatLive
   end
 
   # Other scopes may use custom stacks.
