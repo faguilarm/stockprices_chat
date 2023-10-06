@@ -3,3 +3,15 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+
+.chip {
+  @apply text-xs font-bold px-2 rounded-full text-white;
+}
+.chip-required {
+  @apply chip;
+  @apply bg-red-500;
+}
+.chip-optional {
+  @apply chip;
+  @apply bg-green-600;
+}

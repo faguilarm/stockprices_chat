@@ -14,13 +14,13 @@ defmodule StockpricesChatWeb.ChatLive do
     <h1 class="mb-2 text-2xl lg:text-4xl font-extrabold text-center">Welcome to the StockPrices Chat!</h1>
     <div class="flex flex-col space-y-4">
       <div>
-        <h2 class="font-bold text-center">
+        <h2 class="font-bold text-center mb-2">
           Please ask the information you need by following the next format:
         </h2>
 
-        <ol class="list-decimal list-inside font-sans">
-          <li>(REQUIRED) The stock symbol or ticker, like: AAPL, MSFT, GOOG</li>
-          <li>(OPTIONAL) A single date or date range, as follows:
+        <ol class="list-decimal list-inside font-sans text-sm">
+          <li><span class="chip-required">REQUIRED</span> The stock symbol or ticker, like: AAPL, MSFT, GOOG</li>
+          <li><span class="chip-optional">OPTIONAL</span> A single date or date range, as follows:
             <ul class="list-disc list-inside ml-4">
               <li>A date in YYYY-MM-DD format, i.e. 2023-09-30</li>
               <li>A date range as YYYY-MM-DD YYYY-MM-DD, i.e. 2023-09-30 2023-10-02</li>
@@ -31,9 +31,9 @@ defmodule StockpricesChatWeb.ChatLive do
             <div class="font-mono ml-4 p-4 bg-gray-900 text-green-500 rounded-lg">
               AAPL
               <br>
-              AAPL 2023-09-30
+              AAPL 2023-09-01
               <br>
-              AAPL 2023-09-30 2023-10-02
+              AAPL 2023-09-01 2023-09-15
             </div>
           </li>
         </ol>
