@@ -61,8 +61,8 @@ defmodule StockpricesChatWeb.ChatLive do
 
   def handle_event("handle_submit", %{"my_input" => new_message}, socket) do
     Logger.info("New input is: #{new_message}")
-    with {:ok, request} <- UtilsService.get_parsed(new_message) do
-      {:ok, response} = StockpriceService.get_stockprice(request)
+    with {:ok, request} <- UtilsService.get_parsed(new_message),
+      {:ok, response} <- StockpriceService.get_stockprice(request) do
       response = get_prices_with_change(response)
       list_str = Enum.map(response, fn row -> "#{row.ticker} #{row.date} #{row.price} #{row.change}" end)
       updated_history = create_updated_history(socket.assigns.history, list_str)
