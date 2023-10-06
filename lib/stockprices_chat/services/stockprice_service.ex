@@ -2,6 +2,7 @@ defmodule StockpricesChat.Services.StockpriceService do
   alias StockpricesChat.Types.StockpriceRequest
   alias StockpricesChat.StockpriceRecord
   alias StockpricesChat.Repo
+  alias StockpricesChat.Services.UtilsService
   require Logger
   use HTTPoison.Base
   import Ecto.Query
@@ -21,7 +22,7 @@ defmodule StockpricesChat.Services.StockpriceService do
       date = Enum.at(fields, 1) # get the DATE
       price = Enum.at(fields, 6) # get the CLOSE price
       Logger.info("Got #{price} for #{request.ticker} on #{date}")
-      changeset = StockpriceRecord.changeset(%StockpriceRecord{}, %{ticker: request.ticker, date: date, price: String.to_float(price)})
+      changeset = StockpriceRecord.changeset(%StockpriceRecord{}, %{ticker: request.ticker, date: date, price: UtilsService.parse_float(price)})
       {:ok, record} = Repo.insert(changeset, on_conflict: [set: [price: price]],
       conflict_target: [:ticker, :date])
       {:ok, [record]}

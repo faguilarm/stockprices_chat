@@ -38,7 +38,7 @@ defmodule StockpricesChat.Services.UtilsService do
   def parse_csv_map(map) do
     date_string = map["<DATE>"]
     %{
-      ticker: map["<TICKER>"],
+      ticker: String.replace(map["<TICKER>"], ".US", ""),
       date: "#{String.slice(date_string, 0..3)}-#{String.slice(date_string, 4..5)}-#{String.slice(date_string, 6..7)}",
       price: parse_float(map["<CLOSE>"])
     }
@@ -49,9 +49,3 @@ defmodule StockpricesChat.Services.UtilsService do
     float
   end
 end
-# Path.expand("./stocktest2") |> File.ls!()
-# listaA = "./aaciu.us.txt" |> File.stream! |> CSV.decode(headers: true) |> Enum.to_list |> Enum.filter(fn {:ok, row} -> true; _ -> false end) |> Enum.map(fn {:ok, row} -> Map.take(row, ["<TICKER>", "<DATE>", "<CLOSE>"]) end)
-    #Enum.each(csv_files, fn csv_file ->
-    #  csv_fullpath = Path.expand("#{source}/#{csv_file}")
-    #  IO.puts("#{csv_file}, #{csv_fullpath}")
-    #end)
