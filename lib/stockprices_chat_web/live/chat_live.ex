@@ -63,7 +63,8 @@ defmodule StockpricesChatWeb.ChatLive do
     Logger.info("New input is: #{new_message}")
     with {:ok, request} <- UtilsService.get_parsed(new_message) do
       {:ok, response} = StockpriceService.get_stockprice(request)
-      list_str = Enum.map(response, fn row -> "#{row.ticker} #{row.date} #{row.price}" end)
+      response = get_prices_with_change(response)
+      list_str = Enum.map(response, fn row -> "#{row.ticker} #{row.date} #{row.price} #{row.change}" end)
       updated_history = create_updated_history(socket.assigns.history, list_str)
       {:noreply, assign(socket, message: "", history: updated_history)}
     else
@@ -73,7 +74,25 @@ defmodule StockpricesChatWeb.ChatLive do
     end
   end
 
+  def get_prices_with_change(stockprices) do
+    {_, new_list} = Enum.reduce(stockprices, {nil, []}, fn price, {prev_price, acc} ->
+      case prev_price do
+        nil ->
+          {price, acc ++ [price |> Map.put(:change, "")]}
+        _ ->
+          diff = price.price - prev_price.price
+          change = case diff do
+            diff when diff > 0 -> "▲"
+            diff when diff < 0 -> "▼"
+            _ -> ""
+          end
+          {price, acc ++ [price |> Map.put(:change, change)]}
+      end
+    end)
+    new_list
+  end
+
   def create_updated_history(history, new_lines) do
-    history ++ new_lines ++ ["======================="]
+    history ++ new_lines ++ ["========================"]
   end
 end
