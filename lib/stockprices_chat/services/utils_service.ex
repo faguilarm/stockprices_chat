@@ -1,7 +1,28 @@
 defmodule StockpricesChat.Services.UtilsService do
+  @moduledoc """
+  Provides functions for parsing different structures,
+  as well as functions to be used during the data import (seeds.exs)
+  """
   alias StockpricesChat.Types.StockpriceRequest
   require Logger
 
+  @doc """
+  Parse a message from the user into a structure that can be used by the application
+  ## Parameters
+    * `message` - the message sent by the user
+  ## Returns
+    * `{:ok, %StockpriceRequest{}}` - if the message was parsed correctly
+    * `{:error, message}` - if the message was not parsed correctly
+  ## Examples
+      iex> UtilsService.get_parsed("AAPL")
+      {:ok, %StockpriceRequest{ticker: "AAPL"}}
+      iex> UtilsService.get_parsed("AAPL 2023-09-01")
+      {:ok, %StockpriceRequest{ticker: "AAPL", from: ~D[2023-09-01], to: ~D[2023-09-01]}}
+      iex> UtilsService.get_parsed("AAPL 2023-09-01 2023-09-15")
+      {:ok, %StockpriceRequest{ticker: "AAPL", from: ~D[2023-09-01], to: ~D[2023-09-15]}}
+      iex> UtilsService.get_parsed("something else")
+      {:error, "Invalid message format, please try again"}
+  """
   def get_parsed(message) do
     [ticker | dates] = String.split(message, " ")
     Logger.info("Received: #{ticker} (#{String.length(ticker)}) and #{dates} (#{length(dates)})")
@@ -20,6 +41,15 @@ defmodule StockpricesChat.Services.UtilsService do
     end
   end
 
+  @doc """
+  Extracts a zip file into a target directory
+  ## Parameters
+    * `source` - the zip file to be extracted
+    * `target` - the target directory where the zip file will be extracted
+  ## Returns
+    * `{:ok, entries}` - if the zip file was extracted correctly
+    * `{:error, reason}` - if the zip file was not extracted correctly
+  """
   def get_unzipped_entries(source, target) do
     Logger.info("Unzipping #{source} to #{target}")
     source_path = Path.expand(source)
@@ -27,6 +57,9 @@ defmodule StockpricesChat.Services.UtilsService do
     :zip.extract(~c"#{source_path}", cwd: ~c"#{target_path}")
   end
 
+  @doc """
+  Get a list of files from a directory with full path
+  """
   def get_csv_files(source) do
     Logger.info("Reading CSV files from #{source}")
     source_path = Path.expand(source)
@@ -35,6 +68,9 @@ defmodule StockpricesChat.Services.UtilsService do
     {:ok, csv_files}
   end
 
+  @doc """
+  Parse a map from CSV file to the structure required for changeset
+  """
   def parse_csv_map(map) do
     date_string = map["<DATE>"]
     %{
@@ -44,6 +80,9 @@ defmodule StockpricesChat.Services.UtilsService do
     }
   end
 
+  @doc """
+  Utility function to parse a float from a string
+  """
   def parse_float(string) do
     {float, _} = Float.parse(string)
     float
