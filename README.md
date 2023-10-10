@@ -1,19 +1,26 @@
 # Stockprices Chat
 ![image](https://github.com/faguilarm/stockprices_chat/assets/17299644/88793a6d-2ae0-4b99-9cab-78604000b2a1)
 
+[Live version here](https://dark-wave-4173.fly.dev/)
+
 # About the project
-This is a simple application that offers a chat-like UI to request information regarding stock prices, can gather the response from an external source or from its database.
+This is a simple Elixir/Phoenix application that offers a chat-like UI to request information regarding stock prices, can gather the response from an external source or from its database.
+## Main modules
+* **ChatLive**: LiveView that presents the UI to the user, getting the input for new requests and displaying the results.
+* **StockpriceService**: Receives the request and decides how to resolve it depending on the arguments.
+* **UtilsService**: Compilation of utilities to parse different elements of data used through the application.
+* **priv/repo/seeds.exs**: Script to extract and load a small sample of data included in the project.
 ## Current features
 * If only the ticker is entered, the application will get the response from the [Stooq API](https://stooq.com/) and will save it in the database (Sqlite3).
 * If a single date of date range is provided, it will look for the result from the database, as this is taken as a query for historical prices.
 * For results of two or more rows, simple characters (▲, ▼) are added to represent the variation of the price from the previous day.
 ## Todo / Next steps
+* Fix the definition of some values across different modules (URLs, paths) that should be configurations.
 * Add a new option to request stockprices using this notation `2d`, `3w` and `2m` (days, weeks, months) to represent a period of time from today to some point in the past.
 * Add a new option to allow displaying results in tables and line graphs, in addition to the basic format currently supported.
 * Improve the UI, offer an interface more similar to a standard chat.
 * Fix the seed process to use `Repo.insert_all` or a better way for bulk inserts, instead of `Repo.insert`.
-* Add testing coverage.
-* Add module and function documentation.
+* Improve testing coverage and documentation.
 * Improve the build and deployment process.
 # Installation
 ## Setup
@@ -40,4 +47,5 @@ A `seed.exs` script was provided to make an initial load of data, using the file
 * TSLA (Tesla)
 
 The number of records included for each company can vary a lot but they all finish on 2023-09-26, the day the snapshot was created. 
->If the seed data wasn't already loaded into the database, you can execute the process running `mix run priv/repo/seeds.exs`
+
+If the seed data wasn't already loaded into the database, you can execute the process running `mix run priv/repo/seeds.exs`
