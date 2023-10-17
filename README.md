@@ -15,7 +15,6 @@ This is a simple Elixir/Phoenix application that offers a chat-like UI to reques
 * If a single date of date range is provided, it will look for the result from the database, as this is taken as a query for historical prices.
 * For results of two or more rows, simple characters (▲, ▼) are added to represent the variation of the price from the previous day.
 ## Todo / Next steps
-* Fix the definition of some values across different modules (URLs, paths) that should be configurations.
 * Add a new option to request stockprices using this notation `2d`, `3w` and `2m` (days, weeks, months) to represent a period of time from today to some point in the past.
 * Add a new option to allow displaying results in tables and line graphs, in addition to the basic format currently supported.
 * Improve the UI, offer an interface more similar to a standard chat.
@@ -48,4 +47,12 @@ A `seed.exs` script was provided to make an initial load of data, using the file
 
 The number of records included for each company can vary a lot but they all finish on 2023-09-26, the day the snapshot was created. 
 
-If the seed data wasn't already loaded into the database, you can execute the process running `mix run priv/repo/seeds.exs`
+If the seed data wasn't already loaded into the database, you can execute the process running:
+
+`mix run priv/repo/seeds.exs`
+
+So we can get an ouput like this:
+
+![image](https://github.com/faguilarm/stockprices_chat/assets/17299644/d0ac1af5-9ade-4627-ad7d-d1de3942baae)
+
+
