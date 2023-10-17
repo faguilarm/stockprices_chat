@@ -8,7 +8,9 @@
 import Config
 
 config :stockprices_chat,
-  ecto_repos: [StockpricesChat.Repo]
+  ecto_repos: [StockpricesChat.Repo],
+  zip_file: "priv/data/nasdaq_stocks_10.zip",
+  work_dir: "tmp"
 
 # Configures the endpoint
 config :stockprices_chat, StockpricesChatWeb.Endpoint,

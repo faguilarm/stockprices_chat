@@ -69,6 +69,19 @@ defmodule StockpricesChat.Services.UtilsService do
   end
 
   @doc """
+  Read a CSV file and return a list of maps with the content
+  """
+  def get_entries_from_csv(csv_file) do
+    csv_file
+    |> File.stream!
+    |> CSV.decode(headers: true)
+    |> Enum.to_list
+    |> Enum.filter(fn {:ok, _row} -> true; _ -> false end) #Take only the rows that were parsed correctly
+    |> Enum.map(fn {:ok, row} ->
+      Map.take(row, ["<TICKER>", "<DATE>", "<CLOSE>"]) end) #Take only the fields we need
+  end
+
+  @doc """
   Parse a map from CSV file to the structure required for changeset
   """
   def parse_csv_map(map) do

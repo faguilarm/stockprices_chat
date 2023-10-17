@@ -16,8 +16,8 @@ require Logger
 
 Logger.configure(level: :info)
 
-zip_file = "priv/data/nasdaq_stocks_10.zip"
-work_dir = "tmp"
+zip_file = Application.get_env(:stockprices_chat, :zip_file)
+work_dir = Application.get_env(:stockprices_chat, :work_dir)
 
 # Extract the zip file on the desired location (work_dir)
 # We can comment this line if the zip file was already extracted
@@ -28,27 +28,15 @@ work_dir = "tmp"
 
 Logger.info("#{Enum.count(csv_files)} CSV files will be processed")
 
-_total_csv_entries = 0
-_total_records = 0
-
-Enum.each(csv_files, fn csv_file ->
+{csv_entries, inserted_records} = Enum.reduce(csv_files, {0, 0}, fn csv_file, {acc_csv, acc_rec} ->
   Logger.debug("Processing #{csv_file}")
 
   # Load CSV file into a list of maps
-  entries =
-    csv_file
-    |> File.stream!
-    |> CSV.decode(headers: true)
-    |> Enum.to_list
-    |> Enum.filter(fn {:ok, _row} -> true; _ -> false end) #Take only the rows that were parsed correctly
-    |> Enum.map(fn {:ok, row} ->
-      Map.take(row, ["<TICKER>", "<DATE>", "<CLOSE>"]) end) #Take only the fields we need
-
+  entries = UtilsService.get_entries_from_csv(csv_file)
   Logger.debug("Processing list of entries: #{inspect(entries)}")
-  #total_csv_entries = total_csv_entries + Enum.count(entries)
 
   # Iterate line by line on the list, parse the map and insert into the database
-  Enum.each(entries, fn entry ->
+  inserted = Enum.reduce(entries, 0, fn entry, acc ->
     Logger.debug("Processing entry: #{inspect(entry)}")
     parsed = UtilsService.parse_csv_map(entry)
     Logger.debug("Parsed entry: #{inspect(parsed)}")
@@ -57,11 +45,12 @@ Enum.each(csv_files, fn csv_file ->
     {:ok, record} = Repo.insert(changeset, on_conflict: [set: [price: parsed.price]],
       conflict_target: [:ticker, :date])
     Logger.debug("Inserted record: #{inspect(record)}")
-    #total_records = total_records + 1
+    acc + 1
   end)
+
+  {acc_csv + Enum.count(entries), acc_rec + inserted}
 end)
 
-#TODO This won't work, Enum.each has to be replaced by a Enum.reduce to use accumulator
-#Logger.info("#{total_csv_entries} CSV entries were loaded and parsed")
-#Logger.info("#{total_records} records were inserted into the database")
+Logger.info("#{csv_entries} CSV entries were loaded and parsed")
+Logger.info("#{inserted_records} records were inserted into the database")
 Logger.info("Done!")
